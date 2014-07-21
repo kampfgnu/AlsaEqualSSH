@@ -11,6 +11,7 @@
 		020D41301976F06A00D42623 /* AEMenuViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 020D412F1976F06A00D42623 /* AEMenuViewController.m */; };
 		0218AB61197D11DC003CE8A7 /* hosts.json in Resources */ = {isa = PBXBuildFile; fileRef = 0218AB60197D11DC003CE8A7 /* hosts.json */; };
 		0218AB64197D1235003CE8A7 /* AEHost.m in Sources */ = {isa = PBXBuildFile; fileRef = 0218AB63197D1235003CE8A7 /* AEHost.m */; };
+		0218AB67197D1DA2003CE8A7 /* AESliderTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 0218AB66197D1DA2003CE8A7 /* AESliderTableViewCell.m */; };
 		027FC61E1973FA7600906880 /* AEFrequency.m in Sources */ = {isa = PBXBuildFile; fileRef = 027FC61D1973FA7600906880 /* AEFrequency.m */; };
 		02BF0EF2197348CD00E4DBC3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02BF0EF1197348CD00E4DBC3 /* Foundation.framework */; };
 		02BF0EF4197348CD00E4DBC3 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02BF0EF3197348CD00E4DBC3 /* CoreGraphics.framework */; };
@@ -45,6 +46,8 @@
 		0218AB60197D11DC003CE8A7 /* hosts.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = hosts.json; sourceTree = SOURCE_ROOT; };
 		0218AB62197D1235003CE8A7 /* AEHost.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AEHost.h; sourceTree = "<group>"; };
 		0218AB63197D1235003CE8A7 /* AEHost.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AEHost.m; sourceTree = "<group>"; };
+		0218AB65197D1DA2003CE8A7 /* AESliderTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AESliderTableViewCell.h; sourceTree = "<group>"; };
+		0218AB66197D1DA2003CE8A7 /* AESliderTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AESliderTableViewCell.m; sourceTree = "<group>"; };
 		027FC61C1973FA7600906880 /* AEFrequency.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AEFrequency.h; sourceTree = "<group>"; };
 		027FC61D1973FA7600906880 /* AEFrequency.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AEFrequency.m; sourceTree = "<group>"; };
 		02BF0EEE197348CD00E4DBC3 /* AlsaEqualSSH.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AlsaEqualSSH.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -139,6 +142,8 @@
 				020D412F1976F06A00D42623 /* AEMenuViewController.m */,
 				0218AB62197D1235003CE8A7 /* AEHost.h */,
 				0218AB63197D1235003CE8A7 /* AEHost.m */,
+				0218AB65197D1DA2003CE8A7 /* AESliderTableViewCell.h */,
+				0218AB66197D1DA2003CE8A7 /* AESliderTableViewCell.m */,
 			);
 			path = AlsaEqualSSH;
 			sourceTree = "<group>";
@@ -306,6 +311,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				02BF0F02197348CD00E4DBC3 /* AEAppDelegate.m in Sources */,
+				0218AB67197D1DA2003CE8A7 /* AESliderTableViewCell.m in Sources */,
 				0218AB64197D1235003CE8A7 /* AEHost.m in Sources */,
 				020D412D1976F04400D42623 /* AEEqualizerViewController.m in Sources */,
 				027FC61E1973FA7600906880 /* AEFrequency.m in Sources */,

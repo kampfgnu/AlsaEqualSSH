@@ -26,10 +26,10 @@
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     
-    AEEqualizerViewController *vc = [[AEEqualizerViewController alloc] init];
+    AEEqualizerViewController *vc = [[AEEqualizerViewController alloc] initWithStyle:UITableViewStyleGrouped];
     UINavigationController *nc = [[UINavigationController alloc] initWithRootViewController:vc];
     
-    AEMenuViewController *menuViewController = [[AEMenuViewController alloc] init];
+    AEMenuViewController *menuViewController = [[AEMenuViewController alloc] initWithStyle:UITableViewStyleGrouped];
     
     SWRevealViewController *container = [[SWRevealViewController alloc] initWithRearViewController:menuViewController frontViewController:nc];
     container.rearViewRevealWidth = 320.f;

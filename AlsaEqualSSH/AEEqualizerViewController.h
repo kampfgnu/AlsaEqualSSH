@@ -8,7 +8,7 @@
 
 @class AEHost;
 
-@interface AEEqualizerViewController : UIViewController
+@interface AEEqualizerViewController : UITableViewController
 
 - (void)connectTo:(AEHost *)host;
 - (void)disconnect;

@@ -20,8 +20,8 @@
 
 @implementation AEMenuViewController
 
-- (id)init {
-    self = [super init];
+- (id)initWithStyle:(UITableViewStyle)style {
+    self = [super initWithStyle:style];
     if (self) {
         self.hosts = [NSMutableArray array];
         NSData *hostData = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"hosts" ofType:@"json"]];
@@ -102,13 +102,13 @@
         if (indexPath.row == 0) {
             [self.revealViewController revealToggleAnimated:YES];
         }
-        else if (indexPath.row == 3) {
+        else if (indexPath.row == 1) {
             [[self mainViewController] disconnect];
         }
-        else if (indexPath.row == 4) {
+        else if (indexPath.row == 2) {
             [[self mainViewController] setPreset:0];
         }
-        else if (indexPath.row == 5) {
+        else if (indexPath.row == 3) {
             [[self mainViewController] setPreset:1];
         }
     }

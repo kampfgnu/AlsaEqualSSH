@@ -11,11 +11,10 @@
 #import "AEMenuViewController.h"
 #import "AEFrequency.h"
 #import "AEHost.h"
+#import "AESliderTableViewCell.h"
 
 #import <SWRevealViewController.h>
 #import <NMSSH.h>
-#import <BlocksKit+UIKit.h>
-#import <iOSHelper.h>
 
 typedef enum {
     CommandStateConnecting,
@@ -24,18 +23,11 @@ typedef enum {
     CommandStateSetsReceived
 } CommandState;
 
-@interface AEEqualizerViewController () <NMSSHSessionDelegate, NMSSHChannelDelegate, UITextViewDelegate>
+@interface AEEqualizerViewController () <NMSSHSessionDelegate, NMSSHChannelDelegate, UITextViewDelegate, AESliderTableViewCellDelegate>
 @property (nonatomic, strong) dispatch_queue_t sshQueue;
 @property (nonatomic, strong) NMSSHSession *session;
-@property (nonatomic, assign) dispatch_once_t onceToken;
-@property (nonatomic, strong) dispatch_semaphore_t semaphore;
-@property (nonatomic, strong) UITextView *textView;
 @property (nonatomic, assign) CommandState commandState;
 @property (nonatomic, strong) NSMutableArray *hertzControls;
-@property (nonatomic, strong) NSMutableArray *hertzLabels;
-@property (nonatomic, strong) NSMutableArray *hertzSliders;
-@property (nonatomic, strong) NSMutableArray *hertzValues;
-@property (nonatomic, assign) dispatch_once_t buildSliderOnceToken;
 @property (nonatomic, strong) NSMutableArray *presets;
 @property (nonatomic, strong) AEHost *host;
 @end
@@ -43,14 +35,10 @@ typedef enum {
 
 @implementation AEEqualizerViewController
 
-- (instancetype)init
-{
-    self = [super init];
+- (id)initWithStyle:(UITableViewStyle)style {
+    self = [super initWithStyle:style];
     if (self) {
         self.hertzControls = [NSMutableArray array];
-        self.hertzLabels = [NSMutableArray array];
-        self.hertzSliders = [NSMutableArray array];
-        self.hertzValues = [NSMutableArray array];
         self.presets = [NSMutableArray array];
         
         [_presets addObject:[NSArray arrayWithObjects:@(77), @(74), @(70), @(70), @(70), @(70), @(65), @(68), @(66), @(70), nil]];
@@ -64,30 +52,64 @@ typedef enum {
     
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Menu" style:UIBarButtonItemStylePlain target:self.revealViewController action:@selector(revealToggle:)];
     
-    [self buildSliders];
-    
     self.title = @"disconnected";
 }
 
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return _hertzControls.count;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 1;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return 24.f;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    AEFrequency *f = _hertzControls[section];
     
-    for (int i = 0; i < 10; i++) {
-        UILabel *hl = _hertzLabels[i];
-        UISlider *s = _hertzSliders[i];
-        UILabel *vl = _hertzValues[i];
-        
-        hl.frame = CGRectMake(10.f, (i+1)*50.f + 30.f, 80.f, 34.f);
-        s.frameLeft = 80.f;
-        s.frameWidth = self.view.frameWidth - 120.f;
-        s.frameTop = (i+1)*50.f + 30.f;
-        vl.frame = CGRectMake(s.frameRight, (i+1)*50.f + 30.f, 30.f, 34.f);
+    return f.hertz;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    static NSString *CellIdentifier = @"Cell";
+    AESliderTableViewCell *cell = (AESliderTableViewCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (cell == nil) {
+        cell = [[AESliderTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        cell.delegate = self;
     }
+    
+    AEFrequency *f = _hertzControls[indexPath.section];
+    cell.frequency = f;
+    
+    return cell;
 }
 
 - (AEMenuViewController *)menuViewController {
     return (AEMenuViewController *)self.revealViewController.rearViewController;
 }
+
+- (void)setPreset:(int)index {
+    NSArray *preset = _presets[index];
+    
+    int counter = 0;
+    for (NSNumber *n in preset) {
+        AEFrequency *f = _hertzControls[counter];
+        f.value = [n intValue];
+        
+        [self performCommand:[NSString stringWithFormat:@"amixer -D equal -q set '%@' %i", f.hertz, f.value]];
+        
+        counter++;
+    }
+    [self.tableView reloadData];
+}
+
+////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark - ssh
+////////////////////////////////////////////////////////////////////////
 
 - (void)connectTo:(AEHost *)host {
     _host = host;
@@ -96,7 +118,7 @@ typedef enum {
     
     self.title = @"connecting";
     
-//    [NMSSHLogger logger].logLevel = NMSSHLogLevelVerbose;
+    //    [NMSSHLogger logger].logLevel = NMSSHLogLevelVerbose;
     _commandState = CommandStateConnecting;
     
     self.sshQueue = dispatch_queue_create("NMSSH.queue", DISPATCH_QUEUE_SERIAL);
@@ -132,24 +154,14 @@ typedef enum {
     });
 }
 
-- (void)disconnect {
-    if (self.session != nil && [self.session isConnected]) {
-        [self.session disconnect];
-    }
-    self.commandState = CommandStateConnecting;
-}
-
-- (void)setPreset:(int)index {
-    NSArray *preset = _presets[index];
-    
-    int counter = 0;
-    for (NSNumber *n in preset) {
-        AEFrequency *f = _hertzControls[counter];
-        f.value = [n intValue];
-        
-        [self updateUIAtIndex:counter sendValue:YES updateSlider:YES];
-        counter++;
-    }
+- (void)performCommand:(NSString *)command {
+    dispatch_async(self.sshQueue, ^{
+        NSError *error;
+        [[self.session channel] write:[command stringByAppendingString:@"\n"] error:&error timeout:@10];
+        if (error) {
+            NSLog(@"error performing command: %@", error);
+        }
+    });
 }
 
 - (void)channel:(NMSSHChannel *)channel didReadData:(NSString *)message {
@@ -189,6 +201,18 @@ typedef enum {
     NSLog(@"%@", [NSString stringWithFormat:@"\nDisconnected with error: %@", error.localizedDescription]);
 }
 
+- (void)disconnect {
+    if (self.session != nil && [self.session isConnected]) {
+        [self.session disconnect];
+    }
+    self.commandState = CommandStateConnecting;
+}
+
+////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark - parsing
+////////////////////////////////////////////////////////////////////////
+
 - (void)parseSets:(NSString *)message {
     NSArray *comps = [message componentsSeparatedByString:@"Simple mixer control "];
     
@@ -204,81 +228,31 @@ typedef enum {
         }
     }
     
-    self.view.backgroundColor = [UIColor grayColor];
+//    self.view.backgroundColor = [UIColor grayColor];
     if (_hertzControls.count == 10) {
         self.commandState = CommandStateSetsReceived;
-
-        for (int i = 0; i < _hertzControls.count; i++) {
-            [self updateUIAtIndex:i sendValue:NO updateSlider:YES];
-        }
+        
+        [self.tableView reloadData];
         
         self.title = @"connected";
     }
 }
 
-- (void)updateUIAtIndex:(int)index sendValue:(BOOL)send updateSlider:(BOOL)updateSlider {
-    AEFrequency *f = _hertzControls[index];
-    UILabel *hl = _hertzLabels[index];
-    UISlider *s = _hertzSliders[index];
-    UILabel *vl = _hertzValues[index];
-    
-    hl.text = f.hertz;
-    if (updateSlider) s.value = f.value;
-    vl.text = [NSString stringWithFormat:@"%i", f.value];
-    
-    if (send) {
-        [self performCommand:[NSString stringWithFormat:@"amixer -D equal -q set '%@' %i", f.hertz, f.value]];
-    }
+////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark - AESliderTableViewCellDelegate
+////////////////////////////////////////////////////////////////////////
+
+- (void)sliderTableViewCellSliderChanged:(AESliderTableViewCell *)sliderTableViewCell {
+    sliderTableViewCell.label.text = [NSString stringWithFormat:@"%i", (int)sliderTableViewCell.slider.value];
 }
 
-- (void)buildSliders {
-    __weak typeof(self) weakSelf = self;
-    for (int i = 0; i < 10; i++) {
-        UILabel *hl = [UILabel new];
-        hl.font = [UIFont systemFontOfSize:11.f];
-        hl.frame = CGRectMake(10.f, i*50.f + 30.f, 80.f, 34.f);
-        [self.view addSubview:hl];
-        [_hertzLabels addObject:hl];
-        
-        UISlider *s = [UISlider new];
-        s.minimumValue = 0.f;
-        s.maximumValue = 100.f;
-        s.frameLeft = 80.f;
-        s.frameWidth = self.view.frameWidth - 120.f;
-        s.frameTop = i*50.f + 30.f;
-        s.tag = i;
-        [s bk_addEventHandler:^(UISlider *sender) {
-            int index = (int)sender.tag;
-            AEFrequency *f = _hertzControls[index];
-            f.value = (int)sender.value;
-            
-            [weakSelf updateUIAtIndex:index sendValue:YES updateSlider:NO];
-        } forControlEvents:UIControlEventTouchUpInside];
-        [s bk_addEventHandler:^(UISlider *sender) {
-            NSUInteger index = sender.tag;
-            UILabel *label = [weakSelf.hertzValues objectAtIndex:index];
-            label.text = [NSString stringWithFormat:@"%i", (int)sender.value];
-        } forControlEvents:UIControlEventValueChanged];
-        [self.view addSubview:s];
-        [_hertzSliders addObject:s];
-        
-        UILabel *vl = [UILabel new];
-        vl.font = [UIFont systemFontOfSize:11.f];
-        vl.textAlignment = NSTextAlignmentCenter;
-        vl.frame = CGRectMake(s.frameRight, i*50.f + 30.f, 30.f, 34.f);
-        [self.view addSubview:vl];
-        [_hertzValues addObject:vl];
-    }
-}
-
-- (void)performCommand:(NSString *)command {
-    dispatch_async(self.sshQueue, ^{
-        NSError *error;
-        [[self.session channel] write:[command stringByAppendingString:@"\n"] error:&error timeout:@10];
-        if (error) {
-            NSLog(@"error performing command: %@", error);
-        }
-    });
+- (void)sliderTableViewCellSliderTouchedUp:(AESliderTableViewCell *)sliderTableViewCell {
+    AEFrequency *f = sliderTableViewCell.frequency;
+    f.value = (int)sliderTableViewCell.slider.value;
+    sliderTableViewCell.label.text = [NSString stringWithFormat:@"%i", f.value];
+    
+    [self performCommand:[NSString stringWithFormat:@"amixer -D equal -q set '%@' %i", f.hertz, f.value]];
 }
 
 @end

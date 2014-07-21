@@ -11,6 +11,7 @@
 #import "AEMenuViewController.h"
 #import "AEFrequency.h"
 #import "AEHost.h"
+#import "AEPreset.h"
 #import "AESliderTableViewCell.h"
 
 #import <SWRevealViewController.h>
@@ -28,7 +29,6 @@ typedef enum {
 @property (nonatomic, strong) NMSSHSession *session;
 @property (nonatomic, assign) CommandState commandState;
 @property (nonatomic, strong) NSMutableArray *hertzControls;
-@property (nonatomic, strong) NSMutableArray *presets;
 @property (nonatomic, strong) AEHost *host;
 @end
 
@@ -39,10 +39,6 @@ typedef enum {
     self = [super initWithStyle:style];
     if (self) {
         self.hertzControls = [NSMutableArray array];
-        self.presets = [NSMutableArray array];
-        
-        [_presets addObject:[NSArray arrayWithObjects:@(77), @(74), @(70), @(70), @(70), @(70), @(65), @(68), @(66), @(70), nil]];
-        [_presets addObject:[NSArray arrayWithObjects:@(87), @(78), @(74), @(70), @(70), @(70), @(65), @(68), @(66), @(70), nil]];
     }
     return self;
 }
@@ -70,7 +66,7 @@ typedef enum {
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     AEFrequency *f = _hertzControls[section];
     
-    return f.hertz;
+    return [f.hertz substringFromIndex:4];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -91,11 +87,10 @@ typedef enum {
     return (AEMenuViewController *)self.revealViewController.rearViewController;
 }
 
-- (void)setPreset:(int)index {
-    NSArray *preset = _presets[index];
+- (void)setPreset:(AEPreset *)preset {
     
     int counter = 0;
-    for (NSNumber *n in preset) {
+    for (NSNumber *n in preset.values) {
         AEFrequency *f = _hertzControls[counter];
         f.value = [n intValue];
         

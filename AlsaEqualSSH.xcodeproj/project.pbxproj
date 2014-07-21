@@ -13,6 +13,10 @@
 		0218AB64197D1235003CE8A7 /* AEHost.m in Sources */ = {isa = PBXBuildFile; fileRef = 0218AB63197D1235003CE8A7 /* AEHost.m */; };
 		0218AB67197D1DA2003CE8A7 /* AESliderTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 0218AB66197D1DA2003CE8A7 /* AESliderTableViewCell.m */; };
 		027FC61E1973FA7600906880 /* AEFrequency.m in Sources */ = {isa = PBXBuildFile; fileRef = 027FC61D1973FA7600906880 /* AEFrequency.m */; };
+		02925452197D36E800E632A9 /* AEPreset.m in Sources */ = {isa = PBXBuildFile; fileRef = 02925451197D36E800E632A9 /* AEPreset.m */; };
+		02925454197D36FF00E632A9 /* presets.json in Resources */ = {isa = PBXBuildFile; fileRef = 02925453197D36FF00E632A9 /* presets.json */; };
+		02925457197D3C3900E632A9 /* AEPresetTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 02925456197D3C3900E632A9 /* AEPresetTableViewCell.m */; };
+		0292545A197D411D00E632A9 /* AEPresetView.m in Sources */ = {isa = PBXBuildFile; fileRef = 02925459197D411D00E632A9 /* AEPresetView.m */; };
 		02BF0EF2197348CD00E4DBC3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02BF0EF1197348CD00E4DBC3 /* Foundation.framework */; };
 		02BF0EF4197348CD00E4DBC3 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02BF0EF3197348CD00E4DBC3 /* CoreGraphics.framework */; };
 		02BF0EF6197348CD00E4DBC3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02BF0EF5197348CD00E4DBC3 /* UIKit.framework */; };
@@ -50,6 +54,13 @@
 		0218AB66197D1DA2003CE8A7 /* AESliderTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AESliderTableViewCell.m; sourceTree = "<group>"; };
 		027FC61C1973FA7600906880 /* AEFrequency.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AEFrequency.h; sourceTree = "<group>"; };
 		027FC61D1973FA7600906880 /* AEFrequency.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AEFrequency.m; sourceTree = "<group>"; };
+		02925450197D36E800E632A9 /* AEPreset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AEPreset.h; sourceTree = "<group>"; };
+		02925451197D36E800E632A9 /* AEPreset.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AEPreset.m; sourceTree = "<group>"; };
+		02925453197D36FF00E632A9 /* presets.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = presets.json; sourceTree = SOURCE_ROOT; };
+		02925455197D3C3900E632A9 /* AEPresetTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AEPresetTableViewCell.h; sourceTree = "<group>"; };
+		02925456197D3C3900E632A9 /* AEPresetTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AEPresetTableViewCell.m; sourceTree = "<group>"; };
+		02925458197D411D00E632A9 /* AEPresetView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AEPresetView.h; sourceTree = "<group>"; };
+		02925459197D411D00E632A9 /* AEPresetView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AEPresetView.m; sourceTree = "<group>"; };
 		02BF0EEE197348CD00E4DBC3 /* AlsaEqualSSH.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AlsaEqualSSH.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		02BF0EF1197348CD00E4DBC3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		02BF0EF3197348CD00E4DBC3 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -144,6 +155,12 @@
 				0218AB63197D1235003CE8A7 /* AEHost.m */,
 				0218AB65197D1DA2003CE8A7 /* AESliderTableViewCell.h */,
 				0218AB66197D1DA2003CE8A7 /* AESliderTableViewCell.m */,
+				02925450197D36E800E632A9 /* AEPreset.h */,
+				02925451197D36E800E632A9 /* AEPreset.m */,
+				02925455197D3C3900E632A9 /* AEPresetTableViewCell.h */,
+				02925456197D3C3900E632A9 /* AEPresetTableViewCell.m */,
+				02925458197D411D00E632A9 /* AEPresetView.h */,
+				02925459197D411D00E632A9 /* AEPresetView.m */,
 			);
 			path = AlsaEqualSSH;
 			sourceTree = "<group>";
@@ -156,6 +173,7 @@
 				02BF0EFA197348CD00E4DBC3 /* InfoPlist.strings */,
 				02BF0EFD197348CD00E4DBC3 /* main.m */,
 				02BF0EFF197348CD00E4DBC3 /* AlsaEqualSSH-Prefix.pch */,
+				02925453197D36FF00E632A9 /* presets.json */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -258,6 +276,7 @@
 			files = (
 				02BF0EFC197348CD00E4DBC3 /* InfoPlist.strings in Resources */,
 				0218AB61197D11DC003CE8A7 /* hosts.json in Resources */,
+				02925454197D36FF00E632A9 /* presets.json in Resources */,
 				02BF0F04197348CD00E4DBC3 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -316,7 +335,10 @@
 				020D412D1976F04400D42623 /* AEEqualizerViewController.m in Sources */,
 				027FC61E1973FA7600906880 /* AEFrequency.m in Sources */,
 				02BF0EFE197348CD00E4DBC3 /* main.m in Sources */,
+				02925452197D36E800E632A9 /* AEPreset.m in Sources */,
+				0292545A197D411D00E632A9 /* AEPresetView.m in Sources */,
 				020D41301976F06A00D42623 /* AEMenuViewController.m in Sources */,
+				02925457197D3C3900E632A9 /* AEPresetTableViewCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

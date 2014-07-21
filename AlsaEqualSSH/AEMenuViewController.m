@@ -10,11 +10,14 @@
 
 #import "AEEqualizerViewController.h"
 #import "AEHost.h"
+#import "AEPreset.h"
+#import "AEPresetTableViewCell.h"
 
 #import <SWRevealViewController.h>
 
 @interface AEMenuViewController ()
 @property (nonatomic, strong) NSMutableArray *hosts;
+@property (nonatomic, strong) NSMutableArray *presets;
 @end
 
 
@@ -24,13 +27,13 @@
     self = [super initWithStyle:style];
     if (self) {
         self.hosts = [NSMutableArray array];
+        self.presets = [NSMutableArray array];
+        
         NSData *hostData = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"hosts" ofType:@"json"]];
-
-        NSError *error;
         NSMutableArray *allHosts = [NSJSONSerialization
                                            JSONObjectWithData:hostData
                                            options:NSJSONReadingMutableContainers
-                                           error:&error];
+                                           error:nil];
         
         for (NSDictionary *h in allHosts) {
             AEHost *newHost = [[AEHost alloc] init];
@@ -42,8 +45,28 @@
             [_hosts addObject:newHost];
         }
         
+        NSData *presetsData = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"presets" ofType:@"json"]];
+        NSMutableArray *allPresets = [NSJSONSerialization
+                                      JSONObjectWithData:presetsData
+                                      options:NSJSONReadingMutableContainers
+                                      error:nil];
+        
+        for (NSDictionary *p in allPresets) {
+            AEPreset *preset = [[AEPreset alloc] init];
+            preset.name = p[@"name"];
+            preset.values = p[@"values"];
+            
+            [_presets addObject:preset];
+        }
+        
     }
     return self;
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    self.tableView.frameWidth = self.revealViewController.rearViewRevealWidth;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
@@ -51,45 +74,63 @@
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    return section == 0 ? @"hosts" : @"other stuff to do";
+    if (section == 0) {
+        return @"hosts";
+    }
+    else if (section == 1) {
+        return @"presets";
+    }
+    else {
+        return @"other stuff to do";
+    }
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 2;
+    return 3;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if (section == 0) return _hosts.count;
-    else return 4;
+    else if (section == 1) return _presets.count;
+    else return 2;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    static NSString *CellIdentifier = @"Cell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+    if (indexPath.section == 1) {
+        static NSString *PresetCellIdentifier = @"PresetCell";
+        AEPresetTableViewCell *cell = (AEPresetTableViewCell *)[tableView dequeueReusableCellWithIdentifier:PresetCellIdentifier];
+        if (cell == nil) {
+            cell = [[AEPresetTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:PresetCellIdentifier];
+        }
+        
+        AEPreset *preset = _presets[indexPath.row];
+        cell.preset = preset;
+        [cell setNeedsDisplay];
+        
+        return cell;
     }
-    
-    if (indexPath.section == 0) {
-        AEHost *host = _hosts[indexPath.row];
-        cell.textLabel.text = [NSString stringWithFormat:@"connect to %@", host.hostname];
+    else {
+        static NSString *CellIdentifier = @"Cell";
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+        if (cell == nil) {
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        }
+        
+        if (indexPath.section == 0) {
+            AEHost *host = _hosts[indexPath.row];
+            cell.textLabel.text = [NSString stringWithFormat:@"connect to %@", host.hostname];
+        }
+        else if (indexPath.section == 2) {
+            if (indexPath.row == 0) {
+                cell.textLabel.text = @"show equalizer";
+            }
+            else if (indexPath.row == 1) {
+                cell.textLabel.text = @"disconnect";
+            }
+        }
+        
+        return cell;
     }
-    else if (indexPath.section == 1) {
-        if (indexPath.row == 0) {
-            cell.textLabel.text = @"show equalizer";
-        }
-        else if (indexPath.row == 1) {
-            cell.textLabel.text = @"disconnect";
-        }
-        else if (indexPath.row == 2) {
-            cell.textLabel.text = @"send preset 1";
-        }
-        else if (indexPath.row == 3) {
-            cell.textLabel.text = @"send preset 2";
-        }
-    }
-    
-    return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -99,28 +140,15 @@
         [[self mainViewController] connectTo:host];
     }
     else if (indexPath.section == 1) {
-        if (indexPath.row == 0) {
-            [self.revealViewController revealToggleAnimated:YES];
-        }
-        else if (indexPath.row == 1) {
+        [[self mainViewController] setPreset:_presets[indexPath.row]];
+    }
+    else {
+        if (indexPath.row == 1) {
             [[self mainViewController] disconnect];
-        }
-        else if (indexPath.row == 2) {
-            [[self mainViewController] setPreset:0];
-        }
-        else if (indexPath.row == 3) {
-            [[self mainViewController] setPreset:1];
         }
     }
     
-    if (indexPath.section == 0) {
-        [self.revealViewController revealToggleAnimated:YES];
-    }
-    else if (indexPath.section == 1) {
-        if (indexPath.row != 0) {
-            [self.revealViewController revealToggleAnimated:YES];
-        }
-    }
+    [self.revealViewController revealToggleAnimated:YES];
 }
 
 - (AEEqualizerViewController *)mainViewController {

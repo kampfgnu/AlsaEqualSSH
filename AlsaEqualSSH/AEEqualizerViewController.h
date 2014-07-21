@@ -7,11 +7,12 @@
 //
 
 @class AEHost;
+@class AEPreset;
 
 @interface AEEqualizerViewController : UITableViewController
 
 - (void)connectTo:(AEHost *)host;
 - (void)disconnect;
-- (void)setPreset:(int)index;
+- (void)setPreset:(AEPreset *)preset;
 
 @end
